@@ -68,6 +68,8 @@ export default function Page() {
   };
 
   const [dragging, setDragging] = useState(false);
+  // Accordion state for control panel
+  const [panelOpen, setPanelOpen] = useState(false);
 
   return (
     <div id="canvas-container" style={{ width: '100vw', height: '100vh', cursor: dragging ? 'grabbing' : 'grab', position: 'relative' }}>
@@ -158,154 +160,203 @@ export default function Page() {
         </EffectComposer>
       </Canvas>
 
+      {/* Accordion Panel */}
       <div style={{
         position: 'absolute',
         top: '20px',
         right: '20px',
         background: 'rgba(0,0,0,0.7)',
-        padding: '10px',
+        padding: panelOpen ? '10px' : '0',
         borderRadius: '10px',
         color: 'white',
         fontFamily: 'sans-serif',
-        width: '280px',
+        width: panelOpen ? '280px' : '120px',
         zIndex: 1000,
         fontSize: '11px',
+        boxShadow: panelOpen ? '0 2px 12px #0008' : 'none',
+        transition: 'all 0.2s',
+        overflow: 'hidden',
+        minHeight: '32px',
+        cursor: 'pointer',
       }}>
-        {/* Segmented control for status */}
-        <div style={{ display: 'flex', marginBottom: '12px', gap: '4px' }}>
-          {statusOptions.map(option => (
-            <button
-              key={option.name}
-              onClick={() => handleStatusChange(option)}
-              style={{
-                flex: 1,
-                padding: '8px 0',
-                borderRadius: '6px',
-                border: selectedStatus.name === option.name ? '2px solid #fff' : '1px solid #444',
-                background: selectedStatus.name === option.name ? option.color : 'transparent',
-                color: selectedStatus.name === option.name ? '#222' : '#fff',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-            >
-              {option.name}
-            </button>
-          ))}
+        {/* Accordion Header */}
+        <div
+          onClick={() => setPanelOpen(open => !open)}
+          style={{
+            width: '100%',
+            padding: '8px 0',
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontSize: '12px',
+            letterSpacing: '0.5px',
+            borderBottom: panelOpen ? '1px solid #444' : 'none',
+            cursor: 'pointer',
+            background: 'rgba(0,0,0,0.2)',
+            borderRadius: panelOpen ? '8px 8px 0 0' : '8px',
+            userSelect: 'none',
+            marginBottom: panelOpen ? '10px' : '0',
+          }}
+        >
+          {panelOpen ? 'Hide Controls ▲' : 'Show Controls ▼'}
         </div>
-        <h3 style={{ margin: '0 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Material Controls</h3>
-        <div style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'block', marginBottom: '3px', fontSize: '11px' }}>
-            Color: {materialProps.color}
-          </label>
-          <input
-            type="color"
-            value={materialProps.color}
-            onChange={handleColorChange}
-            style={{ width: '100%', height: '18px', padding: 0, border: 'none' }}
-          />
-        </div>
-        {Object.entries(materialProps).map(([key, value]) => (
-          key !== 'color' && (
-            <div key={key} style={{ marginBottom: '6px' }}>
+        {/* Panel Content (only render if open) */}
+        {panelOpen && (
+          <div style={{ cursor: 'default' }}>
+            {/* Segmented control for status */}
+            <div style={{ display: 'flex', marginBottom: '12px', gap: '4px' }}>
+              {statusOptions.map(option => (
+                <button
+                  key={option.name}
+                  onClick={e => { e.stopPropagation(); handleStatusChange(option); }}
+                  style={{
+                    flex: 1,
+                    padding: '8px 0',
+                    borderRadius: '6px',
+                    border: selectedStatus.name === option.name ? '2px solid #fff' : '1px solid #444',
+                    background: selectedStatus.name === option.name ? option.color : 'transparent',
+                    color: selectedStatus.name === option.name ? '#222' : '#fff',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  {option.name}
+                </button>
+              ))}
+            </div>
+            <h3 style={{ margin: '0 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Material Controls</h3>
+            <div style={{ marginBottom: '10px' }}>
+              <label style={{ display: 'block', marginBottom: '3px', fontSize: '11px' }}>
+                Color: {materialProps.color}
+              </label>
+              <input
+                type="color"
+                value={materialProps.color}
+                onChange={e => { e.stopPropagation(); handleColorChange(e); }}
+                style={{ width: '100%', height: '18px', padding: 0, border: 'none' }}
+              />
+            </div>
+            {Object.entries(materialProps).map(([key, value]) => (
+              key !== 'color' && (
+                <div key={key} style={{ marginBottom: '6px' }}>
+                  <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
+                    {key}: {value.toFixed(2)}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={value}
+                    onChange={e => {
+                      e.stopPropagation();
+                      setMaterialProps(prev => ({
+                        ...prev,
+                        [key]: parseFloat(e.target.value)
+                      }))
+                    }}
+                    className="mini-slider"
+                  />
+                </div>
+              )
+            ))}
+
+            <h3 style={{ margin: '14px 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Light Controls</h3>
+            <div style={{ marginBottom: '6px' }}>
               <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
-                {key}: {value.toFixed(2)}
+                Ambient Light: {lightProps.ambient.toFixed(2)}
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="3"
+                step="0.1"
+                value={lightProps.ambient}
+                onChange={e => {
+                  e.stopPropagation();
+                  setLightProps(prev => ({
+                    ...prev,
+                    ambient: parseFloat(e.target.value)
+                  }))
+                }}
+                className="mini-slider"
+              />
+            </div>
+            <div style={{ marginBottom: '6px' }}>
+              <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
+                Directional Light: {lightProps.directional.toFixed(2)}
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="5"
+                step="0.1"
+                value={lightProps.directional}
+                onChange={e => {
+                  e.stopPropagation();
+                  setLightProps(prev => ({
+                    ...prev,
+                    directional: parseFloat(e.target.value)
+                  }))
+                }}
+                className="mini-slider"
+              />
+            </div>
+
+            <h3 style={{ margin: '14px 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Postprocessing</h3>
+            <div style={{ marginBottom: '6px' }}>
+              <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
+                Bloom: {bloom.toFixed(2)}
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                step="1"
+                value={bloom}
+                onChange={e => {
+                  e.stopPropagation();
+                  setBloom(parseFloat(e.target.value))
+                }}
+                className="mini-slider"
+              />
+            </div>
+            <div style={{ marginBottom: '6px' }}>
+              <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
+                Bloom Luminance Threshold: {luminanceThreshold.toFixed(2)}
               </label>
               <input
                 type="range"
                 min="0"
                 max="1"
                 step="0.01"
-                value={value}
-                onChange={(e) => setMaterialProps(prev => ({
-                  ...prev,
-                  [key]: parseFloat(e.target.value)
-                }))}
+                value={luminanceThreshold}
+                onChange={e => {
+                  e.stopPropagation();
+                  setLuminanceThreshold(parseFloat(e.target.value))
+                }}
                 className="mini-slider"
               />
             </div>
-          )
-        ))}
-
-        <h3 style={{ margin: '14px 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Light Controls</h3>
-        <div style={{ marginBottom: '6px' }}>
-          <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
-            Ambient Light: {lightProps.ambient.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="3"
-            step="0.1"
-            value={lightProps.ambient}
-            onChange={(e) => setLightProps(prev => ({
-              ...prev,
-              ambient: parseFloat(e.target.value)
-            }))}
-            className="mini-slider"
-          />
-        </div>
-        <div style={{ marginBottom: '6px' }}>
-          <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
-            Directional Light: {lightProps.directional.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="5"
-            step="0.1"
-            value={lightProps.directional}
-            onChange={(e) => setLightProps(prev => ({
-              ...prev,
-              directional: parseFloat(e.target.value)
-            }))}
-            className="mini-slider"
-          />
-        </div>
-
-        <h3 style={{ margin: '14px 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Postprocessing</h3>
-        <div style={{ marginBottom: '6px' }}>
-          <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
-            Bloom: {bloom.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="10"
-            step="1"
-            value={bloom}
-            onChange={e => setBloom(parseFloat(e.target.value))}
-            className="mini-slider"
-          />
-        </div>
-        <div style={{ marginBottom: '6px' }}>
-          <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
-            Bloom Luminance Threshold: {luminanceThreshold.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={luminanceThreshold}
-            onChange={e => setLuminanceThreshold(parseFloat(e.target.value))}
-            className="mini-slider"
-          />
-        </div>
-        <div style={{ marginBottom: '6px' }}>
-          <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
-            Bloom Luminance Smoothing: {luminanceSmoothing.toFixed(2)}
-          </label>
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={luminanceSmoothing}
-            onChange={e => setLuminanceSmoothing(parseFloat(e.target.value))}
-            className="mini-slider"
-          />
-        </div>
+            <div style={{ marginBottom: '6px' }}>
+              <label style={{ display: 'block', marginBottom: '2px', fontSize: '11px' }}>
+                Bloom Luminance Smoothing: {luminanceSmoothing.toFixed(2)}
+              </label>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={luminanceSmoothing}
+                onChange={e => {
+                  e.stopPropagation();
+                  setLuminanceSmoothing(parseFloat(e.target.value))
+                }}
+                className="mini-slider"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
