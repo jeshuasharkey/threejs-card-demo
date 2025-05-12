@@ -166,19 +166,45 @@ export default function Page() {
         top: '20px',
         right: '20px',
         background: 'rgba(0,0,0,0.7)',
-        padding: panelOpen ? '10px' : '0',
+        padding: '10px',
         borderRadius: '10px',
         color: 'white',
         fontFamily: 'sans-serif',
-        width: panelOpen ? '280px' : '120px',
+        width: '280px',
         zIndex: 1000,
         fontSize: '11px',
-        boxShadow: panelOpen ? '0 2px 12px #0008' : 'none',
         transition: 'all 0.2s',
         overflow: 'hidden',
         minHeight: '32px',
         cursor: 'pointer',
       }}>
+        {/* Segmented control for status (always visible) */}
+        <div style={{ display: 'flex', margin: panelOpen ? '0 0 12px 0' : '0', gap: '4px', padding: panelOpen ? '0' : '0px 0px 8px' }}>
+          {statusOptions.map(option => (
+            <button
+              key={option.name}
+              onClick={e => { e.stopPropagation(); handleStatusChange(option); }}
+              style={{
+                flex: 1,
+                padding: '8px 0',
+                borderRadius: '6px',
+                border: selectedStatus.name === option.name ? '2px solid #fff' : '1px solid #444',
+                background: selectedStatus.name === option.name ? option.color : 'transparent',
+                color: selectedStatus.name === option.name ? '#222' : '#fff',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '10px',
+                minWidth: 0,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {option.name.split(' ')[0]}
+            </button>
+          ))}
+        </div>
         {/* Accordion Header */}
         <div
           onClick={() => setPanelOpen(open => !open)}
@@ -202,28 +228,6 @@ export default function Page() {
         {/* Panel Content (only render if open) */}
         {panelOpen && (
           <div style={{ cursor: 'default' }}>
-            {/* Segmented control for status */}
-            <div style={{ display: 'flex', marginBottom: '12px', gap: '4px' }}>
-              {statusOptions.map(option => (
-                <button
-                  key={option.name}
-                  onClick={e => { e.stopPropagation(); handleStatusChange(option); }}
-                  style={{
-                    flex: 1,
-                    padding: '8px 0',
-                    borderRadius: '6px',
-                    border: selectedStatus.name === option.name ? '2px solid #fff' : '1px solid #444',
-                    background: selectedStatus.name === option.name ? option.color : 'transparent',
-                    color: selectedStatus.name === option.name ? '#222' : '#fff',
-                    fontWeight: 'bold',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {option.name}
-                </button>
-              ))}
-            </div>
             <h3 style={{ margin: '0 0 10px 0', fontSize: '11px', fontWeight: 'bold' }}>Material Controls</h3>
             <div style={{ marginBottom: '10px' }}>
               <label style={{ display: 'block', marginBottom: '3px', fontSize: '11px' }}>
