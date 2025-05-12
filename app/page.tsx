@@ -151,6 +151,7 @@ export default function Page() {
           maxDistance={100}
           minPolarAngle={Math.PI / 2}
           maxPolarAngle={Math.PI / 2}
+          rotateSpeed={2}
         />
         <EffectComposer>
           <Bloom
