@@ -138,7 +138,7 @@ export default function Page() {
           height: 12px;
         }
       `}</style>
-      <Canvas camera={{ position: [0, 0, 50], fov: 50 }} shadows>
+      <Canvas camera={{ position: [0, 0, 40], fov: 40 }} shadows>
         <color attach="background" args={['#101010']} />
         <ambientLight intensity={lightProps.ambient} />
         <directionalLight position={[5, 5, 5]} intensity={lightProps.directional} castShadow />
@@ -146,9 +146,11 @@ export default function Page() {
         <Model3D materialProps={materialProps} statusName={selectedStatus.name} dragging={dragging} setDragging={setDragging} />
         <OrbitControls 
           enablePan={false}
-          enableRotate={false}
+          enableRotate={true}
           minDistance={20}
           maxDistance={100}
+          minPolarAngle={Math.PI / 2}
+          maxPolarAngle={Math.PI / 2}
         />
         <EffectComposer>
           <Bloom
