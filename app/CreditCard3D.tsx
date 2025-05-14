@@ -175,10 +175,10 @@ export default function Model3D({ materialProps, statusName, dragging, setDraggi
         THEO MASON
       </Text>
       <Text position={[0, -4.72, 0.051]} {...sharedTextProps} scale={[-1, 1, 1]}>
-        West Village
+        WEST VILLAGE
       </Text>
       <Text position={[0, -7.32, 0.051]} {...sharedTextProps} scale={[-1, 1, 1]}>
-        Member Since '22
+        MEMBER SINCE '22
       </Text>
     </group>
   );
